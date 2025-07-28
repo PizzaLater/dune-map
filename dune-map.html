@@ -605,6 +605,8 @@
 
         // Handle cell clicks
         function handleCellClick(e, cellId) {
+            console.log('Cell clicked:', cellId);
+            
             const cell = e.currentTarget;
             const rect = cell.getBoundingClientRect();
             const relativeX = e.clientX - rect.left;
@@ -613,6 +615,8 @@
             const x = (relativeX / rect.width) * 100;
             const y = (relativeY / rect.height) * 100;
             
+            console.log('Click position:', x, y);
+            
             const clickedMarker = gameMarkers.find(marker => {
                 if (marker.cellId !== cellId) return false;
                 const distance = Math.sqrt(Math.pow(marker.x - x, 2) + Math.pow(marker.y - y, 2));
@@ -620,14 +624,18 @@
             });
             
             if (clickedMarker) {
+                console.log('Editing existing marker:', clickedMarker);
                 editMarker(clickedMarker);
             } else {
+                console.log('Adding new marker at:', cellId, x, y);
                 addNewMarker(cellId, x, y);
             }
         }
 
         // Add new marker
         function addNewMarker(cellId, x, y) {
+            console.log('addNewMarker called:', cellId, x, y);
+            
             editingMarkerId = null;
             document.getElementById('modalTitle').textContent = 'ADD MARKER';
             document.getElementById('modalCoords').textContent = `POSITION: ${cellId} (${Math.round(x)}%, ${Math.round(y)}%)`;
@@ -637,6 +645,8 @@
             document.getElementById('deleteBtn').style.display = 'none';
             
             window.pendingMarker = { cellId, x, y };
+            
+            console.log('Showing modal...');
             document.getElementById('markerModal').style.display = 'block';
         }
 
@@ -792,8 +802,10 @@
         });
 
         // Initialize
+        console.log('Starting map initialization...');
         initGrid();
         updateZoom();
+        console.log('Map initialization complete!');
     </script>
 </body>
 </html>
