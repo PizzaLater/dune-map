@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arrakis Deep Desert Map</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Verdana', 'Geneva', sans-serif;
+            background: linear-gradient(135deg, #8B4513 0%, #CD853F 25%, #D2B48C 50%, #F4A460 75%, #DEB887 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #2F1B14;
+            text-transform: uppercase;
+            font-weight: normal;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, rgba(222, 184, 135, 0.95), rgba(205, 133, 63, 0.9));
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(139, 69, 19, 0.4);
+            overflow: hidden;
+            border: 3px solid #8B4513;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 50%, #CD853F 100%);
+            color: #F5DEB3;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            border-bottom: 4px solid #654321;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
+            font-family: 'Verdana', 'Geneva', sans-serif;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+            font-style: italic;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #D2B48C, #DEB887);
+            border-bottom: 3px solid #8B4513;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .marker-type-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .marker-type-btn {
+            padding: 15px 20px;
+            border: 2px solid #8B4513;
+            background: linear-gradient(135deg, #F5DEB3, #DEB887);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: normal;
+            color: #2F1B14;
+            box-shadow: 0 2px 8px rgba(139, 69, 19, 0.3);
+            font-family: 'Verdana', 'Geneva', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 18px;
+        }
+
+        .marker-type-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(139, 69, 19, 0.5);
+            background: linear-gradient(135deg, #F5F5DC, #F5DEB3);
+        }
+
+        .marker-type-btn.active {
+            background: linear-gradient(135deg, #CD853F, #D2691E);
+            color: #F5DEB3;
+            border-color: #A0522D;
+            box-shadow: 0 4px 15px rgba(205, 133, 63, 0.5);
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #8B0000, #B22222);
+            color: #F5DEB3;
+            border: 2px solid #654321;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: normal;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 0, 0, 0.4);
+            font-family: 'Verdana', 'Geneva', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(139, 0, 0, 0.5);
+            background: linear-gradient(135deg, #A0522D, #CD853F);
+        }
+
+        .zoom-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .zoom-btn {
+            background: linear-gradient(135deg, #8B4513, #A0522D);
+            color: #F5DEB3;
+            border: 2px solid #654321;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: normal;
+            transition: all 0.3s ease;
+            font-family: 'Verdana', 'Geneva', sans-serif;
+            box-shadow: 0 2px 8px rgba(139, 69, 19, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .zoom-btn:hover {
+            background: linear-gradient(135deg, #A0522D, #CD853F);
+            transform: translateY(-2px);
+        }
+
+        .zoom-btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .map-container {
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+            overflow: auto;
+        }
+
+        .grid-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .grid-labels {
+            position: absolute;
+            top: -30px;
+            left: 40px;
+            right: 0;
+            height: 30px;
+            display: flex;
+        }
+
+        .column-label {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .row-labels {
+            position: absolute;
+            left: -40px;
+            top: 0;
+            width: 40px;
+            height: 100%;
+            display: flex;
+            flex-direction: column-reverse;
+        }
+
+        .row-label {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(9, var(--cell-size, 80px));
+            grid-template-rows: repeat(9, var(--cell-size, 80px));
+            gap: 2px;
+            background-image: url('https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .grid-cell {
+            background: rgba(139, 69, 19, 0.15);
+            border: 1px solid rgba(160, 82, 45, 0.6);
+            border-radius: 4px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: visible;
+        }
+
+        .grid-cell:hover {
+            background: rgba(245, 222, 179, 0.3);
+            border-color: rgba(205, 133, 63, 0.9);
+            box-shadow: 0 0 15px rgba(245, 222, 179, 0.5);
+        }
+
+        .marker {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+            border: 2px solid rgba(245, 222, 179, 0.9);
+        }
+
+        .marker:hover {
+            transform: scale(1.6);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+            z-index: 15;
+        }
+
+        .marker.base { background: linear-gradient(135deg, #8B0000, #A0522D); }
+        .marker.titanium { background: linear-gradient(135deg, #708090, #556B2F); }
+        .marker.stravidium { background: linear-gradient(135deg, #4B0082, #663399); }
+        .marker.spice { background: linear-gradient(135deg, #FF8C00, #D2691E); }
+        .marker.other { background: linear-gradient(135deg, #2F4F4F, #696969); }
+
+        .tooltip {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(139, 69, 19, 0.95), rgba(160, 82, 45, 0.9));
+            color: #F5DEB3;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-width: 250px;
+            z-index: 1000;
+            pointer-events: none;
+            box-shadow: 0 5px 20px rgba(139, 69, 19, 0.6);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+            border: 2px solid #654321;
+            font-family: 'Verdana', 'Geneva', sans-serif;
+            font-weight: normal;
+            text-transform: uppercase;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(139, 69, 19, 0.8);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #F5DEB3, #DEB887);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(139, 69, 19, 0.7);
+            max-width: 400px;
+            width: 90%;
+            border: 3px solid #8B4513;
+            color: #2F1B14;
+        }
+
+        .modal h3 {
+            margin-bottom: 20px;
+            color: #654321;
+            font-size: 1.6em;
+            font-family: 'Verdana', 'Geneva', sans-serif;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .modal select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #8B4513;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            background: #F5F5DC;
+            color: #2F1B14;
+            font-family: 'Verdana', 'Geneva', sans-serif;
+            font-weight: normal;
+            text-transform: uppercase;
+        }
+
+        .modal textarea {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border: 2px solid #8B4513;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: 'Verdana', 'Geneva', sans-serif;
+            font-weight: normal;
+            font-size: 14px;
+            background: #F5F5DC;
+            color: #2F1B14;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #8B4513;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: normal;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: 'Verdana', 'Geneva', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .modal-btn.primary {
+            background: linear-gradient(135deg, #8B4513, #A0522D);
+            color: #F5DEB3;
+        }
+
+        .modal-btn.secondary {
+            background: #F5F5DC;
+            color: #654321;
+            border-color: #8B4513;
+        }
+
+        .modal-btn.danger {
+            background: linear-gradient(135deg, #8B0000, #B22222);
+            color: #F5DEB3;
+            border-color: #654321;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 69, 19, 0.4);
+        }
+
+        .confirm-modal .modal-content {
+            text-align: center;
+        }
+
+        .zoom-level-1 { --cell-size: 80px; }
+        .zoom-level-2 { --cell-size: 120px; }
+        .zoom-level-3 { --cell-size: 160px; }
+        .zoom-level-4 { --cell-size: 200px; }
+        .zoom-level-5 { --cell-size: 240px; }
+
+        @media (max-width: 768px) {
+            .zoom-level-1 { --cell-size: 60px; }
+            .zoom-level-2 { --cell-size: 90px; }
+            .zoom-level-3 { --cell-size: 120px; }
+            .zoom-level-4 { --cell-size: 150px; }
+            .zoom-level-5 { --cell-size: 180px; }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .marker-type-selector {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏜️ ARRAKIS DEEP DESERT MAP</h1>
+            <p>NAVIGATE THE SHIFTING SANDS. CARVE YOUR PATH THROUGH POWER AND PROPHECY.</p>
+        </div>
+
+        <div class="controls">
+            <div class="marker-type-selector">
+                <span style="font-weight: bold; margin-right: 10px;">MARKER TYPE:</span>
+                <button class="marker-type-btn active" data-type="base">
+                    🏰 ENEMY BASE
+                </button>
+                <button class="marker-type-btn" data-type="titanium">
+                    ⚙️ TITANIUM
+                </button>
+                <button class="marker-type-btn" data-type="stravidium">
+                    💠 STRAVIDIUM
+                </button>
+                <button class="marker-type-btn" data-type="spice">
+                    🌋 SPICE BLOW
+                </button>
+                <button class="marker-type-btn" data-type="other">
+                    📍 OTHER
+                </button>
+            </div>
+            
+            <div class="zoom-controls">
+                <button class="zoom-btn" onclick="zoomOut()">ZOOM OUT</button>
+                <span id="zoomLevel">ZOOM: 1X</span>
+                <button class="zoom-btn" onclick="zoomIn()">ZOOM IN</button>
+            </div>
+
+            <button class="reset-btn" onclick="showResetConfirm()">
+                🗑️ RESET MAP
+            </button>
+        </div>
+
+        <div class="map-container">
+            <div class="grid-wrapper">
+                <div class="grid-labels">
+                    <div class="column-label">1</div>
+                    <div class="column-label">2</div>
+                    <div class="column-label">3</div>
+                    <div class="column-label">4</div>
+                    <div class="column-label">5</div>
+                    <div class="column-label">6</div>
+                    <div class="column-label">7</div>
+                    <div class="column-label">8</div>
+                    <div class="column-label">9</div>
+                </div>
+                <div class="row-labels">
+                    <div class="row-label">A</div>
+                    <div class="row-label">B</div>
+                    <div class="row-label">C</div>
+                    <div class="row-label">D</div>
+                    <div class="row-label">E</div>
+                    <div class="row-label">F</div>
+                    <div class="row-label">G</div>
+                    <div class="row-label">H</div>
+                    <div class="row-label">I</div>
+                </div>
+                <div class="game-grid zoom-level-1" id="gameGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Marker Modal -->
+    <div class="modal" id="markerModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">ADD MARKER</h3>
+            <p id="modalCoords">POSITION: A1</p>
+            
+            <label for="markerTypeSelect">MARKER TYPE:</label>
+            <select id="markerTypeSelect">
+                <option value="base">🏰 ENEMY BASE</option>
+                <option value="titanium">⚙️ TITANIUM</option>
+                <option value="stravidium">💠 STRAVIDIUM</option>
+                <option value="spice">🌋 SPICE BLOW</option>
+                <option value="other">📍 OTHER</option>
+            </select>
+            
+            <textarea id="markerNotes" placeholder="ENTER NOTES ABOUT THIS LOCATION..."></textarea>
+            <div class="modal-buttons">
+                <button class="modal-btn primary" id="saveBtn" onclick="saveMarker()">SAVE MARKER</button>
+                <button class="modal-btn danger" id="deleteBtn" onclick="deleteMarker()" style="display: none;">DELETE</button>
+                <button class="modal-btn secondary" onclick="closeModal()">CANCEL</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Confirmation Modal -->
+    <div class="modal confirm-modal" id="resetConfirmModal">
+        <div class="modal-content">
+            <h3>⚠️ RESET MAP CONFIRMATION</h3>
+            <p>REMOVE ALL SPICE MARKERS AND RESOURCE CLAIMS? THIS CANNOT BE UNDONE. PURGES ARE MEANT FOR WEEKLY RENEWAL—LEST THE ECHOES OF YOUR PATH BE LOST TO THE WORMS FOREVER.</p>
+            <div class="modal-buttons">
+                <button class="modal-btn danger" onclick="resetMap()">YES, RESET MAP</button>
+                <button class="modal-btn secondary" onclick="closeModal()">CANCEL</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Game state
+        let gameMarkers = [];
+        let selectedMarkerType = 'base';
+        let currentZoom = 1;
+        let editingMarkerId = null;
+        let nextMarkerId = 1;
+
+        const markerTypes = {
+            base: { icon: '🏰', name: 'ENEMY BASE' },
+            titanium: { icon: '⚙️', name: 'TITANIUM' },
+            stravidium: { icon: '💠', name: 'STRAVIDIUM' },
+            spice: { icon: '🌋', name: 'SPICE BLOW' },
+            other: { icon: '📍', name: 'OTHER' }
+        };
+
+        // Initialize grid
+        function initGrid() {
+            const grid = document.getElementById('gameGrid');
+            
+            for (let row = 8; row >= 0; row--) {
+                for (let col = 0; col < 9; col++) {
+                    const cell = document.createElement('div');
+                    const cellId = String.fromCharCode(65 + row) + (col + 1);
+                    
+                    cell.className = 'grid-cell';
+                    cell.dataset.cell = cellId;
+                    cell.addEventListener('click', (e) => handleCellClick(e, cellId));
+                    
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        // Handle marker type selection
+        document.querySelectorAll('.marker-type-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.marker-type-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedMarkerType = btn.dataset.type;
+            });
+        });
+
+        // Handle cell clicks
+        function handleCellClick(e, cellId) {
+            const cell = e.currentTarget;
+            const rect = cell.getBoundingClientRect();
+            const relativeX = e.clientX - rect.left;
+            const relativeY = e.clientY - rect.top;
+            
+            const x = (relativeX / rect.width) * 100;
+            const y = (relativeY / rect.height) * 100;
+            
+            const clickedMarker = gameMarkers.find(marker => {
+                if (marker.cellId !== cellId) return false;
+                const distance = Math.sqrt(Math.pow(marker.x - x, 2) + Math.pow(marker.y - y, 2));
+                return distance < 15;
+            });
+            
+            if (clickedMarker) {
+                editMarker(clickedMarker);
+            } else {
+                addNewMarker(cellId, x, y);
+            }
+        }
+
+        // Add new marker
+        function addNewMarker(cellId, x, y) {
+            editingMarkerId = null;
+            document.getElementById('modalTitle').textContent = 'ADD MARKER';
+            document.getElementById('modalCoords').textContent = `POSITION: ${cellId} (${Math.round(x)}%, ${Math.round(y)}%)`;
+            document.getElementById('markerTypeSelect').value = selectedMarkerType;
+            document.getElementById('markerNotes').value = '';
+            document.getElementById('saveBtn').textContent = 'SAVE MARKER';
+            document.getElementById('deleteBtn').style.display = 'none';
+            
+            window.pendingMarker = { cellId, x, y };
+            document.getElementById('markerModal').style.display = 'block';
+        }
+
+        // Edit existing marker
+        function editMarker(marker) {
+            editingMarkerId = marker.id;
+            document.getElementById('modalTitle').textContent = 'EDIT MARKER';
+            document.getElementById('modalCoords').textContent = `POSITION: ${marker.cellId} (${Math.round(marker.x)}%, ${Math.round(marker.y)}%)`;
+            document.getElementById('markerTypeSelect').value = marker.type;
+            document.getElementById('markerNotes').value = marker.notes || '';
+            document.getElementById('saveBtn').textContent = 'UPDATE MARKER';
+            document.getElementById('deleteBtn').style.display = 'block';
+            
+            document.getElementById('markerModal').style.display = 'block';
+        }
+
+        // Save marker
+        function saveMarker() {
+            const type = document.getElementById('markerTypeSelect').value;
+            const notes = document.getElementById('markerNotes').value.trim();
+            
+            if (editingMarkerId) {
+                const marker = gameMarkers.find(m => m.id === editingMarkerId);
+                if (marker) {
+                    marker.type = type;
+                    marker.notes = notes;
+                    marker.lastModified = new Date().toISOString();
+                }
+            } else {
+                const { cellId, x, y } = window.pendingMarker;
+                gameMarkers.push({
+                    id: nextMarkerId++,
+                    cellId,
+                    x,
+                    y,
+                    type,
+                    notes,
+                    timestamp: new Date().toISOString()
+                });
+            }
+            
+            renderMarkers();
+            closeModal();
+        }
+
+        // Delete marker
+        function deleteMarker() {
+            if (editingMarkerId) {
+                gameMarkers = gameMarkers.filter(m => m.id !== editingMarkerId);
+                renderMarkers();
+                closeModal();
+            }
+        }
+
+        // Render markers
+        function renderMarkers() {
+            document.querySelectorAll('.marker').forEach(marker => marker.remove());
+            
+            gameMarkers.forEach(marker => {
+                const cell = document.querySelector(`[data-cell="${marker.cellId}"]`);
+                if (cell) {
+                    const markerEl = document.createElement('div');
+                    markerEl.className = `marker ${marker.type}`;
+                    markerEl.style.left = `${marker.x}%`;
+                    markerEl.style.top = `${marker.y}%`;
+                    markerEl.style.transform = 'translate(-50%, -50%)';
+                    markerEl.textContent = markerTypes[marker.type].icon;
+                    
+                    markerEl.addEventListener('mouseenter', (e) => showTooltip(e, marker));
+                    markerEl.addEventListener('mouseleave', hideTooltip);
+                    
+                    cell.appendChild(markerEl);
+                }
+            });
+        }
+
+        // Show tooltip
+        function showTooltip(e, marker) {
+            const tooltip = document.getElementById('tooltip');
+            const markerInfo = markerTypes[marker.type];
+            
+            let content = `${markerInfo.icon} ${markerInfo.name}\nPOSITION: ${marker.cellId}`;
+            if (marker.notes) {
+                content += `\n\nNOTES:\n${marker.notes.toUpperCase()}`;
+            }
+            
+            tooltip.textContent = content;
+            tooltip.style.left = (e.pageX + 15) + 'px';
+            tooltip.style.top = (e.pageY - 10) + 'px';
+            tooltip.classList.add('show');
+        }
+
+        // Hide tooltip
+        function hideTooltip() {
+            document.getElementById('tooltip').classList.remove('show');
+        }
+
+        // Zoom functions
+        function zoomIn() {
+            if (currentZoom < 5) {
+                currentZoom++;
+                updateZoom();
+            }
+        }
+
+        function zoomOut() {
+            if (currentZoom > 1) {
+                currentZoom--;
+                updateZoom();
+            }
+        }
+
+        function updateZoom() {
+            const grid = document.getElementById('gameGrid');
+            grid.className = `game-grid zoom-level-${currentZoom}`;
+            document.getElementById('zoomLevel').textContent = `ZOOM: ${currentZoom}X`;
+            
+            document.querySelector('[onclick="zoomOut()"]').disabled = currentZoom === 1;
+            document.querySelector('[onclick="zoomIn()"]').disabled = currentZoom === 5;
+        }
+
+        // Reset functions
+        function showResetConfirm() {
+            document.getElementById('resetConfirmModal').style.display = 'block';
+        }
+
+        function resetMap() {
+            gameMarkers = [];
+            renderMarkers();
+            closeModal();
+        }
+
+        // Modal functions
+        function closeModal() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.style.display = 'none';
+            });
+            editingMarkerId = null;
+            window.pendingMarker = null;
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        });
+
+        // Initialize
+        initGrid();
+        updateZoom();
+    </script>
+</body>
+</html>
