@@ -540,10 +540,6 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
     <div class="tooltip" id="tooltip"></div>
 
     <script>
@@ -594,32 +590,8 @@
                 }
             }
 
-            // Load markers from Firebase
-            loadMarkersFromFirebase();
-        }
-
-        // Load markers from Firebase
-        function loadMarkersFromFirebase() {
-            markersRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                gameMarkers = data ? Object.values(data) : [];
-                renderMarkers();
-            });
-        }
-
-        // Save marker to Firebase
-        function saveMarkerToFirebase(marker) {
-            markersRef.child(marker.id).set(marker);
-        }
-
-        // Delete marker from Firebase
-        function deleteMarkerFromFirebase(markerId) {
-            markersRef.child(markerId).remove();
-        }
-
-        // Reset all markers in Firebase
-        function resetMarkersInFirebase() {
-            markersRef.remove();
+            // Load saved markers
+            loadMarkers();
         }
 
         // Handle marker type selection
@@ -692,7 +664,6 @@
                     marker.type = type;
                     marker.notes = notes;
                     marker.lastModified = new Date().toISOString();
-                    saveMarkerToFirebase(marker);
                 }
             } else {
                 const { cellId, x, y } = window.pendingMarker;
@@ -705,16 +676,20 @@
                     notes,
                     timestamp: new Date().toISOString()
                 };
-                saveMarkerToFirebase(newMarker);
+                gameMarkers.push(newMarker);
             }
             
+            saveMarkers();
+            renderMarkers();
             closeModal();
         }
 
         // Delete marker
         function deleteMarker() {
             if (editingMarkerId) {
-                deleteMarkerFromFirebase(editingMarkerId);
+                gameMarkers = gameMarkers.filter(m => m.id !== editingMarkerId);
+                saveMarkers();
+                renderMarkers();
                 closeModal();
             }
         }
@@ -792,7 +767,9 @@
         }
 
         function resetMap() {
-            resetMarkersInFirebase();
+            gameMarkers = [];
+            saveMarkers();
+            renderMarkers();
             closeModal();
         }
 
