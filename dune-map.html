@@ -543,21 +543,6 @@
     <div class="tooltip" id="tooltip"></div>
 
     <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCTDAk1wUES8kYJVXPn5fn1WEkwd4_1q3E",
-            authDomain: "dune-deep-desert-map.firebaseapp.com",
-            databaseURL: "https://dune-deep-desert-map-default-rtdb.firebaseio.com",
-            projectId: "dune-deep-desert-map",
-            storageBucket: "dune-deep-desert-map.firebasestorage.app",
-            messagingSenderId: "362681404675",
-            appId: "1:362681404675:web:7d3863479ffc27749aad36"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const markersRef = database.ref('gameMarkers');
         // Game state
         let gameMarkers = [];
         let selectedMarkerType = 'base';
@@ -572,6 +557,21 @@
             spice: { icon: '🌋', name: 'SPICE BLOW' },
             other: { icon: '📍', name: 'OTHER' }
         };
+
+        // Storage functions
+        function loadMarkers() {
+            const saved = localStorage.getItem('arrakisMarkers');
+            if (saved) {
+                gameMarkers = JSON.parse(saved);
+                // Update nextMarkerId to avoid conflicts
+                nextMarkerId = Math.max(...gameMarkers.map(m => m.id), 0) + 1;
+            }
+            renderMarkers();
+        }
+
+        function saveMarkers() {
+            localStorage.setItem('arrakisMarkers', JSON.stringify(gameMarkers));
+        }
 
         // Initialize grid
         function initGrid() {
