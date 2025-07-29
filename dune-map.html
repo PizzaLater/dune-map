@@ -553,6 +553,7 @@
         // GitHub Gist configuration
         const GIST_ID = 'ef08bd558e539fb4d007dbd106267213';
         const GIST_FILENAME = 'arrakis-markers.json';
+        const GITHUB_TOKEN = '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';
 
         const markerTypes = {
             base: { icon: '🏰', name: 'ENEMY BASE' },
@@ -586,11 +587,40 @@
             }
         }
 
-        // Save markers to GitHub Gist (read-only for now)
-        function saveMarkers() {
-            // For now, we'll save to localStorage as backup
-            localStorage.setItem('arrakisMarkers', JSON.stringify(gameMarkers));
-            console.log('Markers saved to localStorage (Gist saving coming in next step)');
+        // Save markers to GitHub Gist
+        async function saveMarkers() {
+            try {
+                console.log('Saving markers to GitHub Gist...');
+                
+                const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        files: {
+                            [GIST_FILENAME]: {
+                                content: JSON.stringify(gameMarkers, null, 2)
+                            }
+                        }
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log('Markers saved to Gist successfully!');
+                } else {
+                    console.log('Error saving to Gist:', response.status);
+                }
+                
+                // Also save to localStorage as backup
+                localStorage.setItem('arrakisMarkers', JSON.stringify(gameMarkers));
+                
+            } catch (error) {
+                console.log('Error saving markers:', error);
+                // Fallback to localStorage
+                localStorage.setItem('arrakisMarkers', JSON.stringify(gameMarkers));
+            }
         }
 
         // Initialize grid
