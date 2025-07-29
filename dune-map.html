@@ -552,7 +552,7 @@
 
         // JSONBin.io configuration
         const JSONBIN_API_KEY = '$2a$10$JgQxwel0K8E8IwAHjm/WnO5n4OMerLRagHQywjaQBV0z84bViwOQO';
-        const JSONBIN_ID = '676c1fd9ad19ca34f8e0dd20'; // Fixed bin ID for all users
+        const JSONBIN_ID = '6888198df7e7a370d1ef8790'; // Final working bin ID
 
         const markerTypes = {
             base: { icon: '🏰', name: 'ENEMY BASE' },
@@ -602,31 +602,15 @@
             try {
                 console.log('Saving markers to JSONBin.io...');
                 
-                // Try to update existing bin first
-                let response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
+                // Always update the existing bin (never create new ones)
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Master-Key': JSONBIN_API_KEY,
-                        'X-Bin-Name': 'Arrakis Desert Map Markers'
+                        'X-Master-Key': JSONBIN_API_KEY
                     },
                     body: JSON.stringify(gameMarkers)
                 });
-                
-                // If bin doesn't exist (404), create it
-                if (response.status === 404) {
-                    console.log('Bin not found, creating new one...');
-                    response = await fetch('https://api.jsonbin.io/v3/b', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Master-Key': JSONBIN_API_KEY,
-                            'X-Bin-Name': 'Arrakis Desert Map Markers',
-                            'X-Bin-Id': JSONBIN_ID
-                        },
-                        body: JSON.stringify(gameMarkers)
-                    });
-                }
                 
                 if (response.ok) {
                     console.log('Markers saved successfully!');
