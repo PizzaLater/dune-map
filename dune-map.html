@@ -218,6 +218,7 @@
             grid-template-columns: repeat(9, var(--cell-size, 80px));
             grid-template-rows: repeat(9, var(--cell-size, 80px));
             gap: 2px;
+            background-color: white;
             background-image: url('https://static.wixstatic.com/media/4f2721_b478918e69774a3094f5821bf91d71c3~mv2.png');
             background-size: cover;
             background-position: center;
@@ -229,6 +230,22 @@
             transition: all 0.3s ease;
         }
 
+        .game-grid::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://static.wixstatic.com/media/4f2721_b478918e69774a3094f5821bf91d71c3~mv2.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.2;
+            border-radius: 10px;
+            z-index: 1;
+        }
+
         .grid-cell {
             background: rgba(139, 69, 19, 0.15);
             border: 1px solid rgba(160, 82, 45, 0.6);
@@ -237,6 +254,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             overflow: visible;
+            z-index: 2;
         }
 
         .grid-cell:hover {
