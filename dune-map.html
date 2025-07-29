@@ -156,10 +156,36 @@
             transform: translateY(-2px);
         }
 
+        .filter-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-dropdown {
+            background: linear-gradient(135deg, #F5DEB3, #DEB887);
+            color: #2F1B14;
+            border: 2px solid #8B4513;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: normal;
+            transition: all 0.3s ease;
+            font-family: 'Verdana', 'Geneva', sans-serif;
+            box-shadow: 0 2px 8px rgba(139, 69, 19, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+        }
+
         .zoom-btn:disabled {
             background: #999;
             cursor: not-allowed;
             opacity: 0.6;
+        }
+
+        .marker.hidden {
+            display: none;
         }
 
         .map-container {
@@ -497,6 +523,18 @@
                 <button class="zoom-btn" onclick="zoomIn()">ZOOM IN</button>
             </div>
 
+            <div class="filter-controls">
+                <label for="markerFilter" style="font-weight: bold; margin-right: 10px;">FILTER:</label>
+                <select id="markerFilter" class="filter-dropdown" onchange="filterMarkers()">
+                    <option value="all">SHOW ALL</option>
+                    <option value="base">🏰 ENEMY BASE ONLY</option>
+                    <option value="titanium">⚙️ TITANIUM ONLY</option>
+                    <option value="stravidium">💠 STRAVIDIUM ONLY</option>
+                    <option value="spice">🌋 SPICE BLOW ONLY</option>
+                    <option value="other">📍 OTHER ONLY</option>
+                </select>
+            </div>
+
             <button class="reset-btn" onclick="showResetConfirm()">
                 🗑️ RESET MAP
             </button>
@@ -576,6 +614,7 @@
         let currentZoom = 1;
         let editingMarkerId = null;
         let nextMarkerId = 1;
+        let currentFilter = 'all';
 
         // JSONBin.io configuration
         const JSONBIN_API_KEY = '$2a$10$JgQxwel0K8E8IwAHjm/WnO5n4OMerLRagHQywjaQBV0z84bViwOQO';
@@ -801,12 +840,36 @@
                     markerEl.style.transform = 'translate(-50%, -50%)';
                     markerEl.textContent = markerTypes[marker.type].icon;
                     
+                    // Apply filter
+                    if (currentFilter !== 'all' && marker.type !== currentFilter) {
+                        markerEl.classList.add('hidden');
+                    }
+                    
                     markerEl.addEventListener('mouseenter', (e) => showTooltip(e, marker));
                     markerEl.addEventListener('mouseleave', hideTooltip);
                     
                     cell.appendChild(markerEl);
                 }
             });
+        }
+
+        // Filter markers
+        function filterMarkers() {
+            currentFilter = document.getElementById('markerFilter').value;
+            
+            document.querySelectorAll('.marker').forEach(marker => {
+                const markerType = marker.classList[1]; // Gets the type class (base, titanium, etc.)
+                
+                if (currentFilter === 'all') {
+                    marker.classList.remove('hidden');
+                } else if (markerType === currentFilter) {
+                    marker.classList.remove('hidden');
+                } else {
+                    marker.classList.add('hidden');
+                }
+            });
+            
+            console.log('Filtered to show:', currentFilter === 'all' ? 'all markers' : currentFilter + ' markers');
         }
 
         // Show tooltip
