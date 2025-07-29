@@ -552,7 +552,7 @@
 
         // JSONBin.io configuration
         const JSONBIN_API_KEY = '$2a$10$JgQxwel0K8E8IwAHjm/WnO5n4OMerLRagHQywjaQBV0z84bViwOQO';
-        let JSONBIN_ID = null; // Will be set after first save
+        const JSONBIN_ID = '676c1fd9ad19ca34f8e0dd20'; // Fixed bin ID for all users
 
         const markerTypes = {
             base: { icon: '🏰', name: 'ENEMY BASE' },
@@ -567,35 +567,27 @@
             try {
                 console.log('Loading markers from JSONBin.io...');
                 
-                // Try to get existing bin ID from localStorage
-                const savedBinId = localStorage.getItem('arrakisBinId');
-                if (savedBinId) {
-                    JSONBIN_ID = savedBinId;
-                    
-                    const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, {
-                        headers: {
-                            'X-Master-Key': JSONBIN_API_KEY
-                        }
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        gameMarkers = data.record || [];
-                        
-                        // Update nextMarkerId to avoid conflicts
-                        if (gameMarkers.length > 0) {
-                            nextMarkerId = Math.max(...gameMarkers.map(m => m.id), 0) + 1;
-                        }
-                        
-                        console.log('Loaded markers:', gameMarkers.length);
-                        renderMarkers();
-                        return;
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, {
+                    headers: {
+                        'X-Master-Key': JSONBIN_API_KEY
                     }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    gameMarkers = data.record || [];
+                    
+                    // Update nextMarkerId to avoid conflicts
+                    if (gameMarkers.length > 0) {
+                        nextMarkerId = Math.max(...gameMarkers.map(m => m.id), 0) + 1;
+                    }
+                    
+                    console.log('Loaded markers:', gameMarkers.length);
+                } else {
+                    console.log('Bin not found, will create on first save');
+                    gameMarkers = [];
                 }
                 
-                // If no existing bin or failed to load, start fresh
-                console.log('No existing data found, starting fresh');
-                gameMarkers = [];
                 renderMarkers();
                 
             } catch (error) {
@@ -610,20 +602,8 @@
             try {
                 console.log('Saving markers to JSONBin.io...');
                 
-                let url, method;
-                
-                if (JSONBIN_ID) {
-                    // Update existing bin
-                    url = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
-                    method = 'PUT';
-                } else {
-                    // Create new bin
-                    url = 'https://api.jsonbin.io/v3/b';
-                    method = 'POST';
-                }
-                
-                const response = await fetch(url, {
-                    method: method,
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
+                    method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-Master-Key': JSONBIN_API_KEY,
@@ -633,15 +613,6 @@
                 });
                 
                 if (response.ok) {
-                    const result = await response.json();
-                    
-                    if (!JSONBIN_ID && result.metadata && result.metadata.id) {
-                        // Save the new bin ID
-                        JSONBIN_ID = result.metadata.id;
-                        localStorage.setItem('arrakisBinId', JSONBIN_ID);
-                        console.log('Created new bin with ID:', JSONBIN_ID);
-                    }
-                    
                     console.log('Markers saved successfully!');
                 } else {
                     const errorText = await response.text();
