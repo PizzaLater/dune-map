@@ -306,7 +306,9 @@
             border-radius: 8px;
             font-size: 14px;
             white-space: pre-wrap;
-            max-width: 250px;
+            max-width: 350px;
+            min-width: 200px;
+            width: auto;
             z-index: 1000;
             pointer-events: none;
             box-shadow: 0 5px 20px rgba(139, 69, 19, 0.6);
@@ -317,6 +319,8 @@
             font-family: 'Verdana', 'Geneva', sans-serif;
             font-weight: normal;
             text-transform: uppercase;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .tooltip.show {
