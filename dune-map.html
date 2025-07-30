@@ -665,7 +665,10 @@
                 
                 if (response.ok) {
                     const data = await response.json();
-                    gameMarkers = data.record || [];
+                    let loadedMarkers = data.record || [];
+                    
+                    // Filter out placeholder objects
+                    gameMarkers = loadedMarkers.filter(marker => !marker.placeholder);
                     
                     // Update nextMarkerId to avoid conflicts
                     if (gameMarkers.length > 0) {
@@ -690,7 +693,10 @@
         // Save markers to JSONBin.io
         async function saveMarkers() {
             try {
-                console.log('Saving markers to JSONBin.io...');
+                console.log('Saving markers to JSONBin.io...', gameMarkers.length, 'markers');
+                
+                // JSONBin.io doesn't allow empty arrays, so use placeholder if empty
+                const dataToSave = gameMarkers.length > 0 ? gameMarkers : [{"placeholder": true}];
                 
                 // Always update the existing bin (never create new ones)
                 const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
@@ -699,11 +705,11 @@
                         'Content-Type': 'application/json',
                         'X-Master-Key': JSONBIN_API_KEY
                     },
-                    body: JSON.stringify(gameMarkers)
+                    body: JSON.stringify(dataToSave)
                 });
                 
                 if (response.ok) {
-                    console.log('Markers saved successfully!');
+                    console.log('Markers saved successfully! Total markers:', gameMarkers.length);
                 } else {
                     const errorText = await response.text();
                     console.log('Error saving markers:', response.status, errorText);
@@ -843,7 +849,15 @@
         // Delete marker
         function deleteMarker() {
             if (editingMarkerId) {
+                console.log('Deleting marker with ID:', editingMarkerId);
+                
+                // Remove from local array
+                const originalLength = gameMarkers.length;
                 gameMarkers = gameMarkers.filter(m => m.id !== editingMarkerId);
+                
+                console.log('Markers before delete:', originalLength, 'after delete:', gameMarkers.length);
+                
+                // Save to remote storage and update display
                 saveMarkers();
                 renderMarkers();
                 closeModal();
