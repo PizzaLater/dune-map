@@ -318,9 +318,21 @@
             z-index: 15;
         }
 
+        /* Large deposit markers - 2x size */
+        .marker.titanium-large,
+        .marker.stravidium-large {
+            width: 48px;
+            height: 48px;
+            font-size: 32px;
+            border: 3px solid #FFD700;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+
         .marker.base { background: linear-gradient(135deg, #8B0000, #A0522D); }
         .marker.titanium { background: linear-gradient(135deg, #708090, #556B2F); }
+        .marker.titanium-large { background: linear-gradient(135deg, #2F4F4F, #556B2F); }
         .marker.stravidium { background: linear-gradient(135deg, #4B0082, #663399); }
+        .marker.stravidium-large { background: linear-gradient(135deg, #8B00FF, #9400D3); }
         .marker.spice { background: linear-gradient(135deg, #FF8C00, #D2691E); }
         .marker.other { background: linear-gradient(135deg, #2F4F4F, #696969); }
 
@@ -506,8 +518,14 @@
                 <button class="marker-type-btn" data-type="titanium">
                     ⚙️ TITANIUM
                 </button>
+                <button class="marker-type-btn" data-type="titanium-large">
+                    ⚙️ LARGE TITANIUM
+                </button>
                 <button class="marker-type-btn" data-type="stravidium">
                     💠 STRAVIDIUM
+                </button>
+                <button class="marker-type-btn" data-type="stravidium-large">
+                    💠 LARGE STRAVIDIUM
                 </button>
                 <button class="marker-type-btn" data-type="spice">
                     🌋 SPICE BLOW
@@ -529,7 +547,9 @@
                     <option value="all">SHOW ALL</option>
                     <option value="base">🏰 ENEMY BASE ONLY</option>
                     <option value="titanium">⚙️ TITANIUM ONLY</option>
+                    <option value="titanium-large">⚙️ LARGE TITANIUM ONLY</option>
                     <option value="stravidium">💠 STRAVIDIUM ONLY</option>
+                    <option value="stravidium-large">💠 LARGE STRAVIDIUM ONLY</option>
                     <option value="spice">🌋 SPICE BLOW ONLY</option>
                     <option value="other">📍 OTHER ONLY</option>
                 </select>
@@ -579,7 +599,9 @@
             <select id="markerTypeSelect">
                 <option value="base">🏰 ENEMY BASE</option>
                 <option value="titanium">⚙️ TITANIUM</option>
+                <option value="titanium-large">⚙️ LARGE TITANIUM</option>
                 <option value="stravidium">💠 STRAVIDIUM</option>
+                <option value="stravidium-large">💠 LARGE STRAVIDIUM</option>
                 <option value="spice">🌋 SPICE BLOW</option>
                 <option value="other">📍 OTHER</option>
             </select>
@@ -623,7 +645,9 @@
         const markerTypes = {
             base: { icon: '🏰', name: 'ENEMY BASE' },
             titanium: { icon: '⚙️', name: 'TITANIUM' },
+            'titanium-large': { icon: '⚙️', name: 'LARGE TITANIUM DEPOSIT' },
             stravidium: { icon: '💠', name: 'STRAVIDIUM' },
+            'stravidium-large': { icon: '💠', name: 'LARGE STRAVIDIUM DEPOSIT' },
             spice: { icon: '🌋', name: 'SPICE BLOW' },
             other: { icon: '📍', name: 'OTHER' }
         };
